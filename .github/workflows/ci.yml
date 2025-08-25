@@ -1,0 +1,45 @@
+name: Backend CI
+
+# This workflow runs on pushes to the main branch and for pull requests.
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest # Use the latest Ubuntu runner
+
+    strategy:
+      matrix:
+        node-version: [18.x, 20.x] # Test against two major Node.js versions
+
+    defaults:
+      run:
+        working-directory: ./backend # All commands will run in the backend folder
+
+    steps:
+      # 1. Get the code from the repository
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      # 2. Set up the specified Node.js version
+      - name: Use Node.js ${{ matrix.node-version }}
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ matrix.node-version }}
+          cache: 'npm'
+          cache-dependency-path: backend/package-lock.json
+
+      # 3. Install project dependencies
+      - name: Install dependencies
+        run: npm ci # 'ci' is faster and safer for pipelines than 'install'
+
+      # 4. Run the TypeScript compiler to check for type errors and build the project
+      - name: Build project
+        run: npm run build
+
+      # Note: A true test would involve spinning up a test database and running
+      # an actual test suite (e.g., with Jest). For this assignment's scope,
+      # successfully building the project serves as a basic "test".
