@@ -49,14 +49,6 @@ app.get("/logs", async (req: Request, res: Response) => {
     query += ` ORDER BY inserted_at DESC LIMIT $${paramIndex++} OFFSET $${paramIndex++}`;
     queryParams.push(limit, offset);
 
-    console.log("Executing query:", query, "with params:", queryParams);
-    // console.log(
-    //   "Executing count query:",
-    //   countQuery,
-    //   "with params:",
-    //   countParams
-    // );
-
     const logsResult =
       queryParams && queryParams.length > 0
         ? await pool.query(query, queryParams)
