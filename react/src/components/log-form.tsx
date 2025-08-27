@@ -12,7 +12,6 @@ const LogForm: React.FC<{ onLogSubmitted: () => void }> = ({
     const logData = {
       message,
       severity,
-      timestamp: new Date().toISOString(), // Add a timestamp
     };
 
     try {

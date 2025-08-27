@@ -139,35 +139,42 @@ const LogList: React.FC<{ refreshTrigger: number }> = ({ refreshTrigger }) => {
                 boxShadow: "0 2px 4px rgba(0,0,0,0.05)",
               }}
             >
-              <p>
-                <strong>Message:</strong> {log.json.message}
-              </p>
-              <p>
-                <strong>Severity:</strong>{" "}
-                <span
-                  style={{
-                    fontWeight: "bold",
-                    color:
-                      log.json.severity === "error"
-                        ? "red"
-                        : log.json.severity === "warn"
-                        ? "orange"
-                        : log.json.severity === "info"
-                        ? "blue"
-                        : "gray",
-                  }}
-                >
-                  {log.json.severity}
-                </span>
-              </p>
-              <p>
-                <strong>Timestamp:</strong>{" "}
-                {new Date(log.json.timestamp).toLocaleString()}
-              </p>
-              <p style={{ fontSize: "0.8em" }}>
-                <em>
-                  Inserted At: {new Date(log.inserted_at).toLocaleString()}
-                </em>
+              <div
+                style={{
+                  display: "flex",
+                  justifyContent: "space-between",
+                  alignItems: "",
+                }}
+              >
+                <p style={{ margin: 0 }}> {log.json.message}</p>
+                <p style={{ margin: 0 }}>
+                  <span
+                    style={{
+                      fontWeight: "bold",
+                      color:
+                        log.json.severity === "error"
+                          ? "red"
+                          : log.json.severity === "warn"
+                          ? "orange"
+                          : log.json.severity === "info"
+                          ? "blue"
+                          : "gray",
+                    }}
+                  >
+                    {log.json.severity}
+                  </span>
+                </p>
+              </div>
+              <p
+                style={{
+                  fontSize: "0.8em",
+                  color: "#777",
+                  marginTop: "5px",
+                  marginBottom: 0,
+                  textAlign: "right",
+                }}
+              >
+                <em>{new Date(log.inserted_at).toLocaleString()}</em>
               </p>
             </li>
           ))}
