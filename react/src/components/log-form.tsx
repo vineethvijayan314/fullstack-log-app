@@ -40,15 +40,7 @@ const LogForm: React.FC<{ onLogSubmitted: () => void }> = ({
   return (
     <form
       onSubmit={handleSubmit}
-      style={{
-        display: "flex",
-        flexDirection: "column",
-        gap: "10px",
-        margin: "10px auto",
-        padding: "10px",
-        border: "1px solid #ccc",
-        borderRadius: "8px",
-      }}
+      className="flex flex-col gap-2.5 my-2.5 mx-auto p-2.5 border border-gray-300 rounded-lg"
     >
       <label>
         Message:
@@ -57,13 +49,7 @@ const LogForm: React.FC<{ onLogSubmitted: () => void }> = ({
           onChange={(e) => setMessage(e.target.value)}
           required
           rows={4}
-          className="textarea"
-          style={{
-            width: "100%",
-            padding: "8px",
-            border: "1px solid #ddd",
-            borderRadius: "4px",
-          }}
+          className="textarea w-full p-2 border border-gray-300 rounded"
         />
       </label>
       <label>

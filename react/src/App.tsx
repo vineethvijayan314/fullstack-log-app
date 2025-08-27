@@ -15,19 +15,11 @@ function App() {
       <h1 style={{ textAlign: "center", marginBottom: "20px" }}>
         Log Application
       </h1>
-      <div
-        style={{
-          display: "flex",
-          justifyContent: "space-around",
-          gap: "10px",
-          flexWrap: "wrap",
-          width: "100%",
-        }}
-      >
-        <div style={{ flex: 1 }}>
+      <div className="flex justify-around gap-2.5 flex-wrap w-full h-full">
+        <div className="flex-1">
           <LogForm onLogSubmitted={handleLogSubmitted} />
         </div>
-        <div style={{ flex: 1 }}>
+        <div className="flex-1">
           <LogList refreshTrigger={refreshTrigger} />
         </div>
       </div>
