@@ -1,7 +1,7 @@
 
 import React, { useState } from 'react';
 
-const LogForm: React.FC = () => {
+const LogForm: React.FC<{ onLogSubmitted: () => void }> = ({ onLogSubmitted }) => {
   const [message, setMessage] = useState<string>('');
   const [severity, setSeverity] = useState<string>('info');
 
@@ -27,6 +27,7 @@ const LogForm: React.FC = () => {
         setMessage('');
         setSeverity('info');
         alert('Log submitted successfully!');
+        onLogSubmitted();
       } else {
         alert('Failed to submit log.');
       }
