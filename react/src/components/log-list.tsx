@@ -10,24 +10,35 @@ interface LogEntry {
   inserted_at: string;
 }
 
-const LogList: React.FC<{ refreshTrigger: boolean }> = ({ refreshTrigger }) => {
+const LogList: React.FC<{ refreshTrigger: number }> = ({ refreshTrigger }) => {
   const [logs, setLogs] = useState<LogEntry[]>([]);
   const [filteredLogs, setFilteredLogs] = useState<LogEntry[]>([]);
   const [selectedSeverity, setSelectedSeverity] = useState<string>("all");
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
+  const [currentPage, setCurrentPage] = useState<number>(1);
+  const [logsPerPage, setLogsPerPage] = useState<number>(10); // Default logs per page
+  const [totalPages, setTotalPages] = useState<number>(0);
+  const [totalLogs, setTotalLogs] = useState<number>(0);
+
+  const handleLogsPerPageChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
+    setLogsPerPage(parseInt(e.target.value));
+    setCurrentPage(1); // Reset to first page when logs per page changes
+  };
 
   const fetchLogs = async () => {
     setLoading(true);
     setError(null);
     try {
-      const response = await fetch("http://localhost:4000/logs");
+      const response = await fetch(`http://localhost:4000/logs?page=${currentPage}&limit=${logsPerPage}`);
       if (!response.ok) {
         throw new Error(`HTTP error! status: ${response.status}`);
       }
-      const data: LogEntry[] = await response.json();
-      setLogs(data);
-      setFilteredLogs(data);
+      const data = await response.json();
+      setLogs(data.logs);
+      setFilteredLogs(data.logs); // Initialize filtered logs with current page logs
+      setTotalPages(data.totalPages);
+      setTotalLogs(data.totalLogs);
     } catch (err: any) {
       setError(err.message);
     } finally {
@@ -37,7 +48,7 @@ const LogList: React.FC<{ refreshTrigger: boolean }> = ({ refreshTrigger }) => {
 
   useEffect(() => {
     fetchLogs();
-  }, [refreshTrigger]);
+  }, [refreshTrigger, currentPage, logsPerPage]);
 
   useEffect(() => {
     if (selectedSeverity === "all") {
@@ -84,6 +95,29 @@ const LogList: React.FC<{ refreshTrigger: boolean }> = ({ refreshTrigger }) => {
           <option value="warn">Warning</option>
           <option value="error">Error</option>
           <option value="debug">Debug</option>
+        </select>
+      </div>
+      <div style={{ marginBottom: "15px", textAlign: "center" }}>
+        <label
+          htmlFor="logs-per-page"
+          style={{ marginRight: "10px", fontWeight: "bold" }}
+        >
+          Logs per page:
+        </label>
+        <select
+          id="logs-per-page"
+          value={logsPerPage}
+          onChange={handleLogsPerPageChange}
+          style={{
+            padding: "8px",
+            borderRadius: "4px",
+            border: "1px solid",
+          }}
+        >
+          <option value="5">5</option>
+          <option value="10">10</option>
+          <option value="20">20</option>
+          <option value="50">50</option>
         </select>
       </div>
       {filteredLogs.length === 0 ? (
@@ -137,6 +171,23 @@ const LogList: React.FC<{ refreshTrigger: boolean }> = ({ refreshTrigger }) => {
           ))}
         </ul>
       )}
+      <div style={{ display: 'flex', justifyContent: 'center', gap: '10px', marginTop: '20px' }}>
+        <button
+          onClick={() => setCurrentPage(prev => Math.max(1, prev - 1))}
+          disabled={currentPage === 1}
+          style={{ padding: '10px 15px', backgroundColor: '#007bff', color: 'white', border: 'none', borderRadius: '4px', cursor: 'pointer', opacity: currentPage === 1 ? 0.5 : 1 }}
+        >
+          Previous
+        </button>
+        <span style={{ alignSelf: 'center', fontWeight: 'bold' }}>Page {currentPage} of {totalPages}</span>
+        <button
+          onClick={() => setCurrentPage(prev => Math.min(totalPages, prev + 1))}
+          disabled={currentPage === totalPages}
+          style={{ padding: '10px 15px', backgroundColor: '#007bff', color: 'white', border: 'none', borderRadius: '4px', cursor: 'pointer', opacity: currentPage === totalPages ? 0.5 : 1 }}
+        >
+          Next
+        </button>
+      </div>
     </div>
   );
 };

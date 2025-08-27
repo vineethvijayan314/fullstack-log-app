@@ -27,7 +27,7 @@ const LogForm: React.FC<{ onLogSubmitted: () => void }> = ({
       if (response.ok) {
         setMessage("");
         setSeverity("info");
-        alert("Log submitted successfully!");
+        // alert("Log submitted successfully!");
         onLogSubmitted();
       } else {
         alert("Failed to submit log.");
