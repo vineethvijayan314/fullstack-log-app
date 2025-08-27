@@ -30,7 +30,9 @@ const LogList: React.FC<{ refreshTrigger: number }> = ({ refreshTrigger }) => {
     setLoading(true);
     setError(null);
     try {
-      const response = await fetch(`http://localhost:4000/logs?page=${currentPage}&limit=${logsPerPage}`);
+      const response = await fetch(
+        `http://localhost:4000/logs?page=${currentPage}&limit=${logsPerPage}&severity=${selectedSeverity}`
+      );
       if (!response.ok) {
         throw new Error(`HTTP error! status: ${response.status}`);
       }
@@ -48,17 +50,17 @@ const LogList: React.FC<{ refreshTrigger: number }> = ({ refreshTrigger }) => {
 
   useEffect(() => {
     fetchLogs();
-  }, [refreshTrigger, currentPage, logsPerPage]);
+  }, [refreshTrigger, currentPage, logsPerPage, selectedSeverity]);
 
+  // No client-side filtering needed, as filtering is done on the backend
   useEffect(() => {
-    if (selectedSeverity === "all") {
-      setFilteredLogs(logs);
-    } else {
-      setFilteredLogs(
-        logs.filter((log) => log.json.severity === selectedSeverity)
-      );
-    }
-  }, [selectedSeverity, logs]);
+    setFilteredLogs(logs);
+  }, [logs]);
+
+  // Reset current page to 1 when severity changes
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [selectedSeverity]);
 
   if (loading) return <p>Loading logs...</p>;
   if (error) return <p>Error: {error}</p>;
@@ -171,19 +173,46 @@ const LogList: React.FC<{ refreshTrigger: number }> = ({ refreshTrigger }) => {
           ))}
         </ul>
       )}
-      <div style={{ display: 'flex', justifyContent: 'center', gap: '10px', marginTop: '20px' }}>
+      <div
+        style={{
+          display: "flex",
+          justifyContent: "center",
+          gap: "10px",
+          marginTop: "20px",
+        }}
+      >
         <button
-          onClick={() => setCurrentPage(prev => Math.max(1, prev - 1))}
+          onClick={() => setCurrentPage((prev) => Math.max(1, prev - 1))}
           disabled={currentPage === 1}
-          style={{ padding: '10px 15px', backgroundColor: '#007bff', color: 'white', border: 'none', borderRadius: '4px', cursor: 'pointer', opacity: currentPage === 1 ? 0.5 : 1 }}
+          style={{
+            padding: "10px 15px",
+            backgroundColor: "#007bff",
+            color: "white",
+            border: "none",
+            borderRadius: "4px",
+            cursor: "pointer",
+            opacity: currentPage === 1 ? 0.5 : 1,
+          }}
         >
           Previous
         </button>
-        <span style={{ alignSelf: 'center', fontWeight: 'bold' }}>Page {currentPage} of {totalPages}</span>
+        <span style={{ alignSelf: "center", fontWeight: "bold" }}>
+          Page {currentPage} of {totalPages}
+        </span>
         <button
-          onClick={() => setCurrentPage(prev => Math.min(totalPages, prev + 1))}
+          onClick={() =>
+            setCurrentPage((prev) => Math.min(totalPages, prev + 1))
+          }
           disabled={currentPage === totalPages}
-          style={{ padding: '10px 15px', backgroundColor: '#007bff', color: 'white', border: 'none', borderRadius: '4px', cursor: 'pointer', opacity: currentPage === totalPages ? 0.5 : 1 }}
+          style={{
+            padding: "10px 15px",
+            backgroundColor: "#007bff",
+            color: "white",
+            border: "none",
+            borderRadius: "4px",
+            cursor: "pointer",
+            opacity: currentPage === totalPages ? 0.5 : 1,
+          }}
         >
           Next
         </button>

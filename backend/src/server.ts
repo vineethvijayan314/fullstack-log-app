@@ -29,18 +29,48 @@ app.get("/logs", async (req: Request, res: Response) => {
   try {
     const page = parseInt(req.query.page as string) || 1;
     const limit = parseInt(req.query.limit as string) || 10;
+    const severity = req.query.severity as string | undefined;
     const offset = (page - 1) * limit;
 
-    const logsQuery = await pool.query(
-      "SELECT * FROM log ORDER BY inserted_at DESC LIMIT $1 OFFSET $2",
-      [limit, offset]
-    );
+    let query = "SELECT * FROM log";
+    let countQuery = "SELECT COUNT(*) FROM log";
+    const queryParams: (string | number)[] = [];
+    const countParams: (string | number)[] = [];
+    let paramIndex = 1;
 
-    const countQuery = await pool.query("SELECT COUNT(*) FROM log");
-    const totalLogs = parseInt(countQuery.rows[0].count);
+    if (severity && severity !== "all") {
+      query += ` WHERE json->>'severity' = $${paramIndex}`;
+      countQuery += ` WHERE json->>'severity' = $${paramIndex}`;
+      queryParams.push(severity);
+      countParams.push(severity);
+      paramIndex++;
+    }
+
+    query += ` ORDER BY inserted_at DESC LIMIT $${paramIndex++} OFFSET $${paramIndex++}`;
+    queryParams.push(limit, offset);
+
+    console.log("Executing query:", query, "with params:", queryParams);
+    // console.log(
+    //   "Executing count query:",
+    //   countQuery,
+    //   "with params:",
+    //   countParams
+    // );
+
+    const logsResult =
+      queryParams && queryParams.length > 0
+        ? await pool.query(query, queryParams)
+        : await pool.query(query);
+
+    const countResult =
+      countParams && countParams.length > 0
+        ? await pool.query(countQuery, countParams)
+        : await pool.query(countQuery);
+
+    const totalLogs = parseInt(countResult.rows[0].count, 10);
 
     res.status(200).json({
-      logs: logsQuery.rows,
+      logs: logsResult.rows,
       totalPages: Math.ceil(totalLogs / limit),
       currentPage: page,
       totalLogs,

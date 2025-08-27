@@ -5,10 +5,10 @@ import LogForm from "./components/log-form";
 import LogList from "./components/log-list";
 
 function App() {
-  const [refreshTrigger, setRefreshTrigger] = useState(false);
+  const [refreshTrigger, setRefreshTrigger] = useState(0);
 
   const handleLogSubmitted = () => {
-    setRefreshTrigger((prev) => !prev);
+    setRefreshTrigger((prev) => prev + 1);
   };
 
   return (
