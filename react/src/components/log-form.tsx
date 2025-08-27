@@ -45,9 +45,8 @@ const LogForm: React.FC<{ onLogSubmitted: () => void }> = ({
         display: "flex",
         flexDirection: "column",
         gap: "10px",
-        maxWidth: "80%",
-        margin: "20px auto",
-        padding: "20px",
+        margin: "10px auto",
+        padding: "10px",
         border: "1px solid #ccc",
         borderRadius: "8px",
       }}

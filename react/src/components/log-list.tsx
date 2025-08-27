@@ -68,8 +68,8 @@ const LogList: React.FC<{ refreshTrigger: number }> = ({ refreshTrigger }) => {
   return (
     <div
       style={{
-        margin: "20px",
-        padding: "20px",
+        margin: "10px",
+        padding: "10px",
         border: "1px solid #eee",
         borderRadius: "8px",
       }}
