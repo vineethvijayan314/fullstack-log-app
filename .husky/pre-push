@@ -1,6 +1,36 @@
-#!/usr/bin/env sh
-. "$(dirname -- "$0")/_/husky.sh"
 
+echo "🔍 Running pre-push checks..."
+
+if [ "$CI" = "true" ]; then
+  echo "✅ CI environment detected. Skipping branch check."
+  exit 0
+fi
+
+# Prevent direct pushes to main
+if [ "$CURRENT_BRANCH" = "main" ]; then
+  echo "❌ Direct pushes to '$CURRENT_BRANCH' are not allowed."
+  echo "➡️  Please use a feature branch and open a PR."
+  exit 1
+fi
+
+# Fetch the latest from origin
+echo "🌐 Fetching latest changes from origin..."
+git fetch origin
+
+# Check if current branch is behind main
+if [ "$CURRENT_BRANCH" != "main" ]; then
+  BEHIND_COMMITS=$(git rev-list HEAD..origin/main --count)
+
+  if [ "$BEHIND_COMMITS" -gt 0 ]; then
+    echo "⚠️ Your branch is $BEHIND_COMMITS commits behind 'origin/main'."
+    echo "🔄 Please pull or rebase from 'main' before committing."
+    exit 1
+  fi
+fi
+
+echo "🔍 Running tests..."
 npm test --workspace=backend
+
+echo "🔍 Running lint checks..."
 npm run lint --workspace=backend
 npm run lint --workspace=react
