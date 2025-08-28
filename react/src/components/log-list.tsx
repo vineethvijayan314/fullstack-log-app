@@ -39,8 +39,12 @@ const LogList: React.FC<{ refreshTrigger: number }> = ({ refreshTrigger }) => {
       setLogs(data.logs);
       setFilteredLogs(data.logs); // Initialize filtered logs with current page logs
       setTotalPages(data.totalPages);
-    } catch (err: any) {
-      setError(err.message);
+    } catch (err: unknown) {
+      if (err instanceof Error) {
+        setError(err.message);
+      } else {
+        setError("An unknown error occurred");
+      }
     } finally {
       setLoading(false);
     }
@@ -64,15 +68,10 @@ const LogList: React.FC<{ refreshTrigger: number }> = ({ refreshTrigger }) => {
   if (error) return <p>Error: {error}</p>;
 
   return (
-    <div
-      className="m-2.5 p-2.5 border border-gray-200 rounded-lg"
-    >
+    <div className="m-2.5 p-2.5 border border-gray-200 rounded-lg">
       <h2 className="text-center">Log Entries</h2>
       <div className="mb-3.5 text-center">
-        <label
-          htmlFor="severity-filter"
-          className="mr-2.5 font-bold"
-        >
+        <label htmlFor="severity-filter" className="mr-2.5 font-bold">
           Filter by Severity:
         </label>
         <select
@@ -89,10 +88,7 @@ const LogList: React.FC<{ refreshTrigger: number }> = ({ refreshTrigger }) => {
         </select>
       </div>
       <div className="mb-3.5 text-center">
-        <label
-          htmlFor="logs-per-page"
-          className="mr-2.5 font-bold"
-        >
+        <label htmlFor="logs-per-page" className="mr-2.5 font-bold">
           Logs per page:
         </label>
         <select
@@ -108,9 +104,7 @@ const LogList: React.FC<{ refreshTrigger: number }> = ({ refreshTrigger }) => {
         </select>
       </div>
       {filteredLogs.length === 0 ? (
-        <p className="text-center">
-          No logs found for the selected severity.
-        </p>
+        <p className="text-center">No logs found for the selected severity.</p>
       ) : (
         <ul className="list-none p-0">
           {filteredLogs.map((log) => (
@@ -118,9 +112,7 @@ const LogList: React.FC<{ refreshTrigger: number }> = ({ refreshTrigger }) => {
               key={log.id}
               className="border border-gray-300 rounded-md mb-2.5 p-3.5 shadow-md"
             >
-              <div
-                className="flex justify-between items-start"
-              >
+              <div className="flex justify-between items-start">
                 <p className="m-0"> {log.json.message}</p>
                 <p className="m-0">
                   <span
@@ -138,18 +130,14 @@ const LogList: React.FC<{ refreshTrigger: number }> = ({ refreshTrigger }) => {
                   </span>
                 </p>
               </div>
-              <p
-                className="text-sm text-gray-600 mt-1.5 mb-0 text-right"
-              >
+              <p className="text-sm text-gray-600 mt-1.5 mb-0 text-right">
                 <em>{new Date(log.inserted_at).toLocaleString()}</em>
               </p>
             </li>
           ))}
         </ul>
       )}
-      <div
-        className="flex justify-center gap-2.5 mt-5"
-      >
+      <div className="flex justify-center gap-2.5 mt-5">
         <button
           onClick={() => setCurrentPage((prev) => Math.max(1, prev - 1))}
           disabled={currentPage === 1}

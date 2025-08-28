@@ -30,3 +30,7 @@ fi
 
 echo "🔍 Running tests..."
 npm test --workspace=backend
+
+echo "🔍 Running lint checks..."
+npm run lint --workspace=backend
+npm run lint --workspace=react
