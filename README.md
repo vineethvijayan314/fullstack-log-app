@@ -6,6 +6,8 @@
 
 **Frontend Build:** [![Frontend Build Status](https://github.com/vineethvijayan314/fullstack-log-app/actions/workflows/ci.yml/badge.svg?branch=main&event=push&status=success&job=build_frontend)](https://github.com/vineethvijayan314/fullstack-log-app/actions/workflows/ci.yml)
 
+This is a full-stack application for logging.
+
 
 ## Prerequisites
 
@@ -110,3 +112,18 @@ graph TD
     C -->|JSON Response| B
     B -->|JSON Response| A
 ```
+
+## Code Quality and Git Hooks (Husky)
+
+This project utilizes [Husky](https://typicode.github.io/husky/) to manage Git hooks, ensuring code quality and consistency across the development team. Specifically, a `pre-push` hook is configured to automate checks before code is pushed to the remote repository.
+
+### `pre-push` Hook Workflow
+
+Before you can push your changes, the `pre-push` hook automatically performs the following:
+
+1.  **Branch Protection**: Prevents direct pushes to the `main` branch, enforcing a pull request workflow.
+2.  **Branch Synchronization**: Checks if your current branch is behind `origin/main`. If it is, you will be prompted to pull or rebase from `main` to ensure your branch is up-to-date, preventing merge conflicts and ensuring you're working with the latest code.
+3.  **Automated Testing**: Runs unit tests for the backend application (`npm run test --workspace=backend`) to catch regressions early.
+4.  **Code Linting**: Executes lint checks for both the backend (`npm run lint --workspace=backend`) and frontend (`npm run lint --workspace=react`) to enforce coding standards and identify potential issues.
+
+These automated checks help maintain a high standard of code quality and ensure that only well-tested and properly formatted code is integrated into the main codebase.
