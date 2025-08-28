@@ -11,7 +11,7 @@ if [ "$CURRENT_BRANCH" = "main" ]; then
   echo "❌ Direct pushes to '$CURRENT_BRANCH' are not allowed."
   echo "➡️  Please use a feature branch and open a PR."
   exit 1
-f
+fi
 
 # Fetch the latest from origin
 echo "🌐 Fetching latest changes from origin..."
