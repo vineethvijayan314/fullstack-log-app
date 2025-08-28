@@ -11,9 +11,7 @@ jobs:
   build:
     runs-on: ubuntu-latest # Use the latest Ubuntu runner
 
-    strategy:
-      matrix:
-        node-version: [18.x, 20.x] # Test against two major Node.js versions
+    node-version: 20.x # Use a single Node.js version
 
     defaults:
       run:
