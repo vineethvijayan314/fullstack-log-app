@@ -9,6 +9,10 @@
   "scripts": {
     "dev": "npm run dev --workspaces",
     "start:backend": "npm run dev -w backend",
-    "test:backend": "npm run test -w backend"
+    "test:backend": "npm run test -w backend",
+    "prepare": "husky"
+  },
+  "devDependencies": {
+    "husky": "^9.1.7"
   }
 }
