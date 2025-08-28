@@ -17,13 +17,13 @@ fi
 echo "🌐 Fetching latest changes from origin..."
 git fetch origin
 
-# Check if current branch is behind dev
+# Check if current branch is behind main
 if [ "$CURRENT_BRANCH" != "main" ]; then
-  BEHIND_COMMITS=$(git rev-list HEAD..origin/dev --count)
+  BEHIND_COMMITS=$(git rev-list HEAD..origin/main --count)
 
   if [ "$BEHIND_COMMITS" -gt 0 ]; then
-    echo "⚠️ Your branch is $BEHIND_COMMITS commits behind 'origin/dev'."
-    echo "🔄 Please pull or rebase from 'dev' before committing."
+    echo "⚠️ Your branch is $BEHIND_COMMITS commits behind 'origin/main'."
+    echo "🔄 Please pull or rebase from 'main' before committing."
     exit 1
   fi
 fi
