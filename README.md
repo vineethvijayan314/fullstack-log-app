@@ -8,7 +8,7 @@
 
 This is a full-stack application for logging.
 
-## Architecture
+## High Level Architecture
 
 ```mermaid
 graph TD
@@ -21,4 +21,23 @@ graph TD
     end
 
     H --> D
+```
+
+## Backend Data Flow
+
+```mermaid
+graph TD
+    A[Client Request] --> B(Express Server)
+    B --> C(Routing Layer)
+    C --> D(Controller)
+    D --> E(Repository)
+    E --> F(Database Connection Pool)
+    F --> G[PostgreSQL Database]
+
+    G -->|Data Response| F
+    F -->|Data Response| E
+    E -->|Data Response| D
+    D -->|JSON Response| C
+    C -->|JSON Response| B
+    B -->|JSON Response| A
 ```
