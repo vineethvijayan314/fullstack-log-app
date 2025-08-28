@@ -23,11 +23,11 @@ jobs:
             react/package-lock.json
 
       - name: Install backend dependencies
-        run: npm ci
+        run: npm ci --ignore-scripts
         working-directory: ./backend
 
       - name: Install react dependencies
-        run: npm ci
+        run: npm ci --ignore-scripts
         working-directory: ./react
 
       - name: Lint backend
@@ -53,7 +53,7 @@ jobs:
           cache-dependency-path: backend/package-lock.json
 
       - name: Install backend dependencies
-        run: npm ci
+        run: npm ci --ignore-scripts
         working-directory: ./backend
 
       - name: Test backend
@@ -75,7 +75,7 @@ jobs:
           cache-dependency-path: backend/package-lock.json
 
       - name: Install backend dependencies
-        run: npm ci
+        run: npm ci --ignore-scripts
         working-directory: ./backend
 
       - name: Build backend
@@ -97,7 +97,7 @@ jobs:
           cache-dependency-path: react/package-lock.json
 
       - name: Install react dependencies
-        run: npm ci
+        run: npm ci --ignore-scripts
         working-directory: ./react
 
       - name: Build react
