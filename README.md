@@ -127,3 +127,21 @@ Before you can push your changes, the `pre-push` hook automatically performs the
 4.  **Code Linting**: Executes lint checks for both the backend (`npm run lint --workspace=backend`) and frontend (`npm run lint --workspace=react`) to enforce coding standards and identify potential issues.
 
 These automated checks help maintain a high standard of code quality and ensure that only well-tested and properly formatted code is integrated into the main codebase.
+
+```mermaid
+flowchart TD
+    A[Git Push Attempt] --> B{Is CI Environment?}
+    B -->|Yes| C[Allow Push - Skip Checks]
+    B -->|No| D{Is Branch 'main'?}
+    D -->|Yes| E[Deny Push]
+    D -->|No| F[Fetch latest from origin]
+    F --> G{Is Branch behind 'main'?}
+    G -->|Yes| E
+    G -->|No| I{Run Backend Tests}
+    I -->|Pass| J{Run Backend Lint}
+    I -->|Fail| E
+    J -->|Pass| K{Run Frontend Lint}
+    J -->|Fail| E
+    K -->|Pass| L[Allow Push]
+    K -->|Fail| E
+```
