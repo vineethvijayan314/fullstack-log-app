@@ -1,36 +1,39 @@
-import pool from "../../db";
-import { getLogs, createLog } from "../../repositories/log.repository";
+import * as LogRepository from '../../repositories/log.repository';
+import pool from '../../db'; // Import the actual pool
 
-jest.mock("../../db", () => ({
-  __esModule: true,
-  default: {
-    query: jest.fn(),
-  },
-}));
+describe('Log Repository', () => {
+  let querySpy: jest.SpyInstance;
 
-const mockedPoolQuery = pool.query as jest.Mock;
+  beforeEach(() => {
+    // Spy on the query method of the imported pool object
+    querySpy = jest.spyOn(pool, 'query');
+  });
 
-describe("Log Repository", () => {
   afterEach(() => {
+    // Restore the original implementation after each test
+    querySpy.mockRestore();
     jest.clearAllMocks();
   });
 
-  describe("getLogs", () => {
-    it("should retrieve logs with pagination", async () => {
-      const mockLogs = [{ id: 1, json: { message: "test" } }];
-      const mockCount = { count: "1" };
-      mockedPoolQuery
-        .mockResolvedValueOnce({ rows: mockLogs }) // for logs
-        .mockResolvedValueOnce({ rows: [mockCount] }); // for count
+  describe('getLogs', () => {
+    it('should return logs with default parameters', async () => {
+      const mockLogs = [
+        { id: 1, json: { message: 'Log 1', severity: 'info' }, inserted_at: '2023-01-01T10:00:00Z' },
+      ];
+      const mockCount = [{ count: '1' }];
 
-      const result = await getLogs({ page: 1, limit: 10 });
+      querySpy
+        .mockResolvedValueOnce({ rows: mockLogs })
+        .mockResolvedValueOnce({ rows: mockCount });
 
-      expect(mockedPoolQuery).toHaveBeenCalledTimes(2);
-      expect(mockedPoolQuery).toHaveBeenCalledWith(
-        "SELECT * FROM log ORDER BY inserted_at DESC LIMIT $1 OFFSET $2",
+      const result = await LogRepository.getLogs({});
+
+      expect(querySpy).toHaveBeenCalledTimes(2);
+      expect(querySpy).toHaveBeenCalledWith(
+        'SELECT * FROM log ORDER BY inserted_at DESC LIMIT $1 OFFSET $2',
         [10, 0]
       );
-      expect(mockedPoolQuery).toHaveBeenCalledWith("SELECT COUNT(*) FROM log");
+      expect(querySpy).toHaveBeenCalledWith('SELECT COUNT(*) FROM log');
       expect(result).toEqual({
         logs: mockLogs,
         totalPages: 1,
@@ -39,50 +42,67 @@ describe("Log Repository", () => {
       });
     });
 
-    it("should retrieve logs with severity filter", async () => {
+    it('should return logs with specified parameters', async () => {
       const mockLogs = [
-        { id: 1, json: { message: "test", severity: "high" } },
+        { id: 1, json: { message: 'Log 1', severity: 'error' }, inserted_at: '2023-01-01T10:00:00Z' },
       ];
-      const mockCount = { count: "1" };
-      mockedPoolQuery
-        .mockResolvedValueOnce({ rows: mockLogs }) // for logs
-        .mockResolvedValueOnce({ rows: [mockCount] }); // for count
+      const mockCount = [{ count: '1' }];
 
-      const result = await getLogs({ page: 1, limit: 10, severity: "high" });
+      querySpy
+        .mockResolvedValueOnce({ rows: mockLogs })
+        .mockResolvedValueOnce({ rows: mockCount });
 
-      expect(mockedPoolQuery).toHaveBeenCalledTimes(2);
-      expect(mockedPoolQuery).toHaveBeenCalledWith(
+      const result = await LogRepository.getLogs({ page: 2, limit: 5, severity: 'error' });
+
+      expect(querySpy).toHaveBeenCalledTimes(2);
+      expect(querySpy).toHaveBeenCalledWith(
         "SELECT * FROM log WHERE json->>'severity' = $1 ORDER BY inserted_at DESC LIMIT $2 OFFSET $3",
-        ["high", 10, 0]
+        ['error', 5, 5]
       );
-      expect(mockedPoolQuery).toHaveBeenCalledWith(
+      expect(querySpy).toHaveBeenCalledWith(
         "SELECT COUNT(*) FROM log WHERE json->>'severity' = $1",
-        ["high"]
+        ['error']
       );
       expect(result).toEqual({
         logs: mockLogs,
         totalPages: 1,
-        currentPage: 1,
+        currentPage: 2,
         totalLogs: 1,
+      });
+    });
+
+    it('should return empty logs if no logs found', async () => {
+      const mockLogs: any[] = [];
+      const mockCount = [{ count: '0' }];
+
+      querySpy
+        .mockResolvedValueOnce({ rows: mockLogs })
+        .mockResolvedValueOnce({ rows: mockCount });
+
+      const result = await LogRepository.getLogs({});
+
+      expect(querySpy).toHaveBeenCalledTimes(2);
+      expect(result).toEqual({
+        logs: [],
+        totalPages: 0,
+        currentPage: 1,
+        totalLogs: 0,
       });
     });
   });
 
-  describe("createLog", () => {
-    it("should create a new log", async () => {
-      const newLogData = { message: "new log" };
-      const createdLog = {
-        id: 1,
-        json: newLogData,
-        inserted_at: new Date().toISOString(),
-      };
-      mockedPoolQuery.mockResolvedValue({ rows: [createdLog] });
+  describe('createLog', () => {
+    it('should create a new log successfully', async () => {
+      const newLogData = { message: 'New log entry', severity: 'debug' };
+      const createdLog = { id: 2, json: newLogData, inserted_at: '2023-01-02T10:00:00Z' };
 
-      const result = await createLog(newLogData as any);
+      querySpy.mockResolvedValueOnce({ rows: [createdLog] });
 
-      expect(mockedPoolQuery).toHaveBeenCalledTimes(1);
-      expect(mockedPoolQuery).toHaveBeenCalledWith(
-        "INSERT INTO log (json) VALUES ($1) RETURNING *",
+      const result = await LogRepository.createLog(newLogData);
+
+      expect(querySpy).toHaveBeenCalledTimes(1);
+      expect(querySpy).toHaveBeenCalledWith(
+        'INSERT INTO log (json) VALUES ($1) RETURNING *',
         [newLogData]
       );
       expect(result).toEqual(createdLog);

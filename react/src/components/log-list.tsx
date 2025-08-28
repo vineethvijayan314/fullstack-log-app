@@ -1,18 +1,10 @@
 import React, { useEffect, useState, useCallback } from "react";
-
-interface LogEntry {
-  id: number;
-  json: {
-    message: string;
-    severity: string;
-    timestamp: string;
-  };
-  inserted_at: string;
-}
+import { DefaultService } from "../api/generated";
+type Log = NonNullable<Awaited<ReturnType<typeof DefaultService.getLogs>>['logs']>[number];
 
 const LogList: React.FC<{ refreshTrigger: number }> = ({ refreshTrigger }) => {
-  const [logs, setLogs] = useState<LogEntry[]>([]);
-  const [filteredLogs, setFilteredLogs] = useState<LogEntry[]>([]);
+  const [logs, setLogs] = useState<Log[]>([]);
+  const [filteredLogs, setFilteredLogs] = useState<Log[]>([]);
   const [selectedSeverity, setSelectedSeverity] = useState<string>("all");
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
@@ -29,16 +21,14 @@ const LogList: React.FC<{ refreshTrigger: number }> = ({ refreshTrigger }) => {
     setLoading(true);
     setError(null);
     try {
-      const response = await fetch(
-        `http://localhost:4000/logs?page=${currentPage}&limit=${logsPerPage}&severity=${selectedSeverity}`
+      const data = await DefaultService.getLogs(
+        currentPage,
+        logsPerPage,
+        selectedSeverity === "all" ? undefined : selectedSeverity
       );
-      if (!response.ok) {
-        throw new Error(`HTTP error! status: ${response.status}`);
-      }
-      const data = await response.json();
-      setLogs(data.logs);
-      setFilteredLogs(data.logs); // Initialize filtered logs with current page logs
-      setTotalPages(data.totalPages);
+      setLogs(data.logs || []);
+      setFilteredLogs(data.logs || []); // Initialize filtered logs with current page logs
+      setTotalPages(data.totalPages || 0);
     } catch (err: unknown) {
       if (err instanceof Error) {
         setError(err.message);
@@ -113,25 +103,25 @@ const LogList: React.FC<{ refreshTrigger: number }> = ({ refreshTrigger }) => {
               className="border border-gray-300 rounded-md mb-2.5 p-3.5 shadow-md"
             >
               <div className="flex justify-between items-start">
-                <p className="m-0"> {log.json.message}</p>
+                <p className="m-0"> {log.json?.message}</p>
                 <p className="m-0">
                   <span
                     className={`font-bold ${
-                      log.json.severity === "error"
+                      log.json?.severity === "error"
                         ? "text-red-500"
-                        : log.json.severity === "warn"
+                        : log.json?.severity === "warn"
                         ? "text-orange-500"
-                        : log.json.severity === "info"
+                        : log.json?.severity === "info"
                         ? "text-blue-500"
                         : "text-gray-500"
                     }`}
                   >
-                    {log.json.severity}
+                    {log.json?.severity}
                   </span>
                 </p>
               </div>
               <p className="text-sm text-gray-600 mt-1.5 mb-0 text-right">
-                <em>{new Date(log.inserted_at).toLocaleString()}</em>
+                <em>{log.inserted_at ? new Date(log.inserted_at).toLocaleString() : "N/A"}</em>
               </p>
             </li>
           ))}

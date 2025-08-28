@@ -2,6 +2,8 @@ import express from "express";
 import cors from "cors";
 import dotenv from "dotenv";
 import routes from "./routes";
+import swaggerUi from "swagger-ui-express";
+import swaggerSpecs from "./swagger";
 
 dotenv.config();
 
@@ -16,6 +18,12 @@ app.use(
 app.use(express.json());
 
 // Routes
+app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(swaggerSpecs));
 app.use("/", routes);
+
+app.get("/swagger.json", (req, res) => {
+  res.setHeader("Content-Type", "application/json");
+  res.send(swaggerSpecs);
+});
 
 export default app;
