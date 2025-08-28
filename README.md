@@ -38,8 +38,10 @@ Follow these steps to get the project up and running on your local machine:
 
     This command will build the Docker image for the database (if not already built) and start the PostgreSQL service.
 
+    `db/init.sql` file will be executed to initialize the database.
+
     ```bash
-    docker-compose up --build -d db
+    docker-compose up -d
     ```
 
 4.  **Start the backend server:**
