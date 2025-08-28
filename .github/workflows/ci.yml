@@ -1,5 +1,4 @@
-name: Backend CI
-
+name: CI
 
 on:
   push:
@@ -8,13 +7,8 @@ on:
     branches: [ main ]
 
 jobs:
-  build:
+  lint:
     runs-on: ubuntu-latest
-
-    defaults:
-      run:
-        working-directory: ./backend
-
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
@@ -24,10 +18,88 @@ jobs:
         with:
           node-version: 20.x
           cache: 'npm'
-          cache-dependency-path: package-lock.json
+          cache-dependency-path: |
+            backend/package-lock.json
+            react/package-lock.json
 
-      - name: Install dependencies
+      - name: Install backend dependencies
         run: npm ci
+        working-directory: ./backend
 
-      - name: Build project
+      - name: Install react dependencies
+        run: npm ci
+        working-directory: ./react
+
+      - name: Lint backend
+        run: npm run lint
+        working-directory: ./backend
+
+      - name: Lint react
+        run: npm run lint
+        working-directory: ./react
+
+  test:
+    runs-on: ubuntu-latest
+    needs: lint
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Use Node.js 20.x
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20.x
+          cache: 'npm'
+          cache-dependency-path: backend/package-lock.json
+
+      - name: Install backend dependencies
+        run: npm ci
+        working-directory: ./backend
+
+      - name: Test backend
+        run: npm test
+        working-directory: ./backend
+
+  build_backend:
+    runs-on: ubuntu-latest
+    needs: test
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Use Node.js 20.x
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20.x
+          cache: 'npm'
+          cache-dependency-path: backend/package-lock.json
+
+      - name: Install backend dependencies
+        run: npm ci
+        working-directory: ./backend
+
+      - name: Build backend
         run: npm run build
+        working-directory: ./backend
+
+  build_frontend:
+    runs-on: ubuntu-latest
+    needs: test
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Use Node.js 20.x
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20.x
+          cache: 'npm'
+          cache-dependency-path: react/package-lock.json
+
+      - name: Install react dependencies
+        run: npm ci
+        working-directory: ./react
+
+      - name: Build react
+        run: npm run build
+        working-directory: ./react
