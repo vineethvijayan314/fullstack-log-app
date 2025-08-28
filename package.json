@@ -11,6 +11,7 @@
     "dev": "npm run dev --workspaces",
     "start:backend": "npm run dev -w backend",
     "test:backend": "npm run test -w backend",
+    "start:frontend": "npm run dev -w react",
     "prepare": "husky"
   },
   "devDependencies": {
