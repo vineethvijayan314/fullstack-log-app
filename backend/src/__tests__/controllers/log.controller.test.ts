@@ -3,11 +3,11 @@ import {
   getLogsController,
   createLogController,
 } from "../../controllers/log.controller";
-import * as LogModel from "../../models/log.model";
+import * as LogRepository from "../../repositories/log.repository";
 
-jest.mock("../../models/log.model");
+jest.mock("../../repositories/log.repository");
 
-const mockedLogModel = LogModel as jest.Mocked<typeof LogModel>;
+const mockedLogRepository = LogRepository as jest.Mocked<typeof LogRepository>;
 
 describe("Log Controller", () => {
   let req: Partial<Request>;
@@ -40,11 +40,11 @@ describe("Log Controller", () => {
         currentPage: 1,
         totalLogs: 0,
       };
-      mockedLogModel.getLogs.mockResolvedValue(logsResult);
+      mockedLogRepository.getLogs.mockResolvedValue(logsResult);
 
       await getLogsController(req as Request, res as Response);
 
-      expect(mockedLogModel.getLogs).toHaveBeenCalledWith({
+      expect(mockedLogRepository.getLogs).toHaveBeenCalledWith({
         page: 1,
         limit: 10,
         severity: undefined,
@@ -57,7 +57,7 @@ describe("Log Controller", () => {
       const consoleErrorSpy = jest
         .spyOn(console, "error")
         .mockImplementation(() => {});
-      mockedLogModel.getLogs.mockRejectedValue(new Error("DB error"));
+      mockedLogRepository.getLogs.mockRejectedValue(new Error("DB error"));
 
       await getLogsController(req as Request, res as Response);
 
@@ -69,21 +69,21 @@ describe("Log Controller", () => {
 
   describe("createLogController", () => {
     it("should create a log and return 201", async () => {
-      const newLogData: LogModel.LogContent = {
+      const newLogData: LogRepository.LogContent = {
         message: "new",
         severity: "info",
       };
       req.body = { jsonData: newLogData };
-      const createdLog: LogModel.Log = {
+      const createdLog: LogRepository.Log = {
         id: 1,
         json: newLogData,
         inserted_at: "somedate",
       };
-      mockedLogModel.createLog.mockResolvedValue(createdLog);
+      mockedLogRepository.createLog.mockResolvedValue(createdLog);
 
       await createLogController(req as Request, res as Response);
 
-      expect(mockedLogModel.createLog).toHaveBeenCalledWith(newLogData);
+      expect(mockedLogRepository.createLog).toHaveBeenCalledWith(newLogData);
       expect(resStatus).toHaveBeenCalledWith(201);
       expect(resJson).toHaveBeenCalledWith(createdLog);
     });
@@ -93,7 +93,7 @@ describe("Log Controller", () => {
 
       await createLogController(req as Request, res as Response);
 
-      expect(mockedLogModel.createLog).not.toHaveBeenCalled();
+      expect(mockedLogRepository.createLog).not.toHaveBeenCalled();
       expect(resStatus).toHaveBeenCalledWith(400);
       expect(resJson).toHaveBeenCalledWith({ error: "jsonData is required" });
     });
@@ -102,12 +102,12 @@ describe("Log Controller", () => {
       const consoleErrorSpy = jest
         .spyOn(console, "error")
         .mockImplementation(() => {});
-      const newLogData: LogModel.LogContent = {
+      const newLogData: LogRepository.LogContent = {
         message: "new",
         severity: "info",
       };
       req.body = { jsonData: newLogData };
-      mockedLogModel.createLog.mockRejectedValue(new Error("DB error"));
+      mockedLogRepository.createLog.mockRejectedValue(new Error("DB error"));
 
       await createLogController(req as Request, res as Response);
 

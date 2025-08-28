@@ -1,5 +1,5 @@
 import pool from "../../db";
-import { getLogs, createLog } from "../../models/log.model";
+import { getLogs, createLog } from "../../repositories/log.repository";
 
 jest.mock("../../db", () => ({
   __esModule: true,
@@ -10,7 +10,7 @@ jest.mock("../../db", () => ({
 
 const mockedPoolQuery = pool.query as jest.Mock;
 
-describe("Log Model", () => {
+describe("Log Repository", () => {
   afterEach(() => {
     jest.clearAllMocks();
   });

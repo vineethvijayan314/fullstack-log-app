@@ -1,10 +1,10 @@
 import request from "supertest";
 import app from "../app"; // Import the Express app
-import * as LogModel from "../models/log.model";
+import * as LogRepository from "../repositories/log.repository";
 
-jest.mock("../models/log.model");
+jest.mock("../repositories/log.repository");
 
-const mockedLogModel = LogModel as jest.Mocked<typeof LogModel>;
+const mockedLogRepository = LogRepository as jest.Mocked<typeof LogRepository>;
 
 describe("API Endpoints", () => {
   afterEach(() => {
@@ -21,7 +21,7 @@ describe("API Endpoints", () => {
 
   describe("GET /logs", () => {
     it("should return 200 OK with logs", async () => {
-      const logsResult: LogModel.GetLogsResult = {
+      const logsResult: LogRepository.GetLogsResult = {
         logs: [
           {
             id: 1,
@@ -33,13 +33,13 @@ describe("API Endpoints", () => {
         currentPage: 1,
         totalLogs: 1,
       };
-      mockedLogModel.getLogs.mockResolvedValue(logsResult);
+      mockedLogRepository.getLogs.mockResolvedValue(logsResult);
 
       const res = await request(app).get("/logs?page=1&limit=10");
 
       expect(res.statusCode).toEqual(200);
       expect(res.body).toEqual(logsResult);
-      expect(mockedLogModel.getLogs).toHaveBeenCalledWith({
+      expect(mockedLogRepository.getLogs).toHaveBeenCalledWith({
         page: 1,
         limit: 10,
         severity: undefined,
@@ -47,7 +47,7 @@ describe("API Endpoints", () => {
     });
 
     it("should return 500 on error", async () => {
-      mockedLogModel.getLogs.mockRejectedValue(new Error("DB Error"));
+      mockedLogRepository.getLogs.mockRejectedValue(new Error("DB Error"));
 
       const res = await request(app).get("/logs");
 
@@ -58,16 +58,16 @@ describe("API Endpoints", () => {
 
   describe("POST /logs", () => {
     it("should return 201 Created with the new log", async () => {
-      const newLogData: LogModel.LogContent = {
+      const newLogData: LogRepository.LogContent = {
         message: "new log",
         severity: "info",
       };
-      const createdLog: LogModel.Log = {
+      const createdLog: LogRepository.Log = {
         id: 1,
         json: newLogData,
         inserted_at: "somedate",
       };
-      mockedLogModel.createLog.mockResolvedValue(createdLog);
+      mockedLogRepository.createLog.mockResolvedValue(createdLog);
 
       const res = await request(app)
         .post("/logs")
@@ -75,7 +75,7 @@ describe("API Endpoints", () => {
 
       expect(res.statusCode).toEqual(201);
       expect(res.body).toEqual(createdLog);
-      expect(mockedLogModel.createLog).toHaveBeenCalledWith(newLogData);
+      expect(mockedLogRepository.createLog).toHaveBeenCalledWith(newLogData);
     });
 
     it("should return 400 if jsonData is not provided", async () => {
@@ -85,7 +85,7 @@ describe("API Endpoints", () => {
     });
 
     it("should return 500 on error", async () => {
-      mockedLogModel.createLog.mockRejectedValue(new Error("DB Error"));
+      mockedLogRepository.createLog.mockRejectedValue(new Error("DB Error"));
 
       const res = await request(app)
         .post("/logs")
