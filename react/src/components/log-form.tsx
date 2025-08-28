@@ -1,4 +1,6 @@
 import React, { useState } from "react";
+import { DefaultService } from "../api/generated";
+type LogCreateRequest = Parameters<typeof DefaultService.postLogs>[0];
 
 const LogForm: React.FC<{ onLogSubmitted: () => void }> = ({
   onLogSubmitted,
@@ -9,28 +11,20 @@ const LogForm: React.FC<{ onLogSubmitted: () => void }> = ({
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
-    const logData = {
-      message,
-      severity,
+    const logData: LogCreateRequest = {
+      jsonData: {
+        message,
+        severity,
+      },
     };
 
     try {
-      const response = await fetch("http://localhost:4000/logs", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({ jsonData: logData }),
-      });
+      await DefaultService.postLogs(logData);
 
-      if (response.ok) {
-        setMessage("");
-        setSeverity("info");
-        // alert("Log submitted successfully!");
-        onLogSubmitted();
-      } else {
-        alert("Failed to submit log.");
-      }
+      setMessage("");
+      setSeverity("info");
+      // alert("Log submitted successfully!");
+      onLogSubmitted();
     } catch (error) {
       console.error("Error submitting log:", error);
       alert("Error submitting log.");
