@@ -1,6 +1,5 @@
 name: Backend CI
 
-
 on:
   push:
     branches: [ main ]
@@ -10,10 +9,6 @@ on:
 jobs:
   build:
     runs-on: ubuntu-latest
-
-    defaults:
-      run:
-        working-directory: ./backend
 
     steps:
       - name: Checkout repository
@@ -26,8 +21,20 @@ jobs:
           cache: 'npm'
           cache-dependency-path: package-lock.json
 
-      - name: Install dependencies
+      - name: Install root dependencies
         run: npm ci
 
-      - name: Build project
+      - name: Install Husky
+        run: npx husky install
+
+      - name: Install backend dependencies
+        run: npm ci
+        working-directory: ./backend
+
+      - name: Build backend project
         run: npm run build
+        working-directory: ./backend
+
+      - name: Run backend tests
+        run: npm test
+        working-directory: ./backend
